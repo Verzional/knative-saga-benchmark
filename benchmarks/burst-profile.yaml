@@ -1,0 +1,26 @@
+config:
+  target: "http://127.0.0.1:8000"
+  phases:
+    - duration: 15
+      arrivalRate: 80
+      name: "Live Profiling Burst (80 RPS)"
+  defaults:
+    headers:
+      Host: "order.default.192.168.10.10.nip.io"
+      Content-Type: "application/json"
+      ce-specversion: "1.0"
+      ce-type: "order.create"
+      ce-source: "artillery-profile-runner"
+
+scenarios:
+  - name: "Live Profiling Order"
+    flow:
+      - post:
+          url: "/orders"
+          json:
+            order_id: "prof-{{ $uuid }}"
+            customer_id: "cust-prof"
+            sku: "SKU-BURST"
+            quantity: 1
+            amount: 75.00
+            payment_method: "BALANCE"

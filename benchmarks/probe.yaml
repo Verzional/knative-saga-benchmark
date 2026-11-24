@@ -1,0 +1,15 @@
+config:
+  target: "http://127.0.0.1:8000"
+  defaults:
+    headers:
+      Host: "order.default.192.168.10.10.nip.io"
+  phases:
+    - duration: 5
+      arrivalRate: 5
+scenarios:
+  - flow:
+      - post:
+          url: "/orders"
+          json:
+            order_id: "test-probe"
+            amount: 50.0

@@ -1,0 +1,32 @@
+config:
+  target: "http://order.default.192.168.10.10.nip.io"
+  phases:
+    - duration: 30
+      arrivalRate: 50
+      name: "Moderate Baseline (50 RPS)"
+    - duration: 60
+      arrivalRate: 50
+      rampTo: 300
+      name: "High Ramp (50 -> 300 RPS)"
+    - duration: 60
+      arrivalRate: 350
+      name: "Stress Saturation & 150% Overload (350 RPS)"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      ce-specversion: "1.0"
+      ce-type: "order.create"
+      ce-source: "artillery-stress-tester"
+
+scenarios:
+  - name: "Stress Saturation Flow"
+    flow:
+      - post:
+          url: "/orders"
+          json:
+            order_id: "stress-{{ $uuid }}"
+            customer_id: "cust-stress"
+            sku: "ITEM-VALID-01"
+            quantity: 1
+            amount: 100.00
+            payment_method: "BALANCE"

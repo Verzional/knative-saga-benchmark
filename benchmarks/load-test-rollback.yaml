@@ -1,0 +1,36 @@
+config:
+  target: "http://127.0.0.1:8000"
+  phases:
+    - duration: 20
+      arrivalRate: 5
+      name: "Moderate Failure Injection (5 RPS)"
+    - duration: 20
+      arrivalRate: 10
+      name: "Sustained Compensation Load (10 RPS)"
+  defaults:
+    headers:
+      Host: "order.default.192.168.10.10.nip.io"
+      Content-Type: "application/json"
+      ce-specversion: "1.0"
+      ce-type: "order.create"
+      ce-source: "artillery-load-tester"
+
+scenarios:
+  - name: "Rollback Path - Poison Pill Triggering Compensation"
+    flow:
+      - post:
+          url: "/orders"
+          json:
+            order_id: "order-fail-{{ $uuid }}"
+            customer_id: "cust-{{ $randomNumber(100, 999) }}"
+            sku: "POISON-PILL"
+            quantity: -1
+            amount: -50.00
+            payment_method: "BALANCE"
+            trigger_failure: true
+          expect:
+            - statusCode:
+                - 422
+                - 400
+                - 200
+                - 202

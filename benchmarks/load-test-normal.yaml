@@ -1,0 +1,34 @@
+config:
+  target: "http://127.0.0.1:8000"
+  phases:
+    - duration: 30
+      arrivalRate: 10
+      name: "Warm-up phase (10 RPS)"
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 100
+      name: "Step-load Ramp (10 -> 100 RPS)"
+    - duration: 60
+      arrivalRate: 100
+      rampTo: 200
+      name: "Sustained Peak Load (100 -> 200 RPS)"
+  defaults:
+    headers:
+      Host: "order.default.192.168.10.10.nip.io"
+      Content-Type: "application/json"
+      ce-specversion: "1.0"
+      ce-type: "order.create"
+      ce-source: "artillery-load-tester"
+
+scenarios:
+  - name: "Success Path - Normal Order Flow"
+    flow:
+      - post:
+          url: "/orders"
+          json:
+            order_id: "order-{{ $uuid }}"
+            customer_id: "cust-{{ $randomNumber(100, 999) }}"
+            sku: "ITEM-VALID-01"
+            quantity: 1
+            amount: 150.00
+            payment_method: "BALANCE"

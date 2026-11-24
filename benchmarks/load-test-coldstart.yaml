@@ -1,0 +1,26 @@
+config:
+  target: "http://127.0.0.1:8000"
+  phases:
+    - duration: 5
+      arrivalRate: 1
+      name: "Cold Start Single Probe"
+  defaults:
+    headers:
+      Host: "order.default.192.168.10.10.nip.io"
+      Content-Type: "application/json"
+      ce-specversion: "1.0"
+      ce-type: "order.create"
+      ce-source: "artillery-coldstart-tester"
+
+scenarios:
+  - name: "Cold Start Probe Request"
+    flow:
+      - post:
+          url: "/orders"
+          json:
+            order_id: "coldstart-probe-{{ $uuid }}"
+            customer_id: "coldstart-user"
+            sku: "ITEM-VALID-01"
+            quantity: 1
+            amount: 50.00
+            payment_method: "BALANCE"
