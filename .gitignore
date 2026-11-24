@@ -1,0 +1,9 @@
+.DS_Store
+*.tar.gz
+*.tmp
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+~$*
+scratch/
