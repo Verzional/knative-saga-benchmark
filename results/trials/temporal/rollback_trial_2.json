@@ -1,0 +1,799 @@
+{
+  "aggregate": {
+    "period": 1795445330000,
+    "counters": {
+      "vusers.created_by_name.Rollback Path - Poison Pill Triggering Compensation": 300,
+      "vusers.created": 300,
+      "http.requests": 300,
+      "http.codes.422": 297,
+      "http.responses": 297,
+      "http.downloaded_bytes": 103254,
+      "plugins.metrics-by-endpoint./orders.codes.422": 297,
+      "vusers.failed": 3,
+      "vusers.completed": 297,
+      "plugins.metrics-by-endpoint./orders.errors.ERR_SOCKET_TIMEOUT": 3,
+      "errors.ERR_SOCKET_TIMEOUT": 3
+    },
+    "rates": {
+      "http.request_rate": 10
+    },
+    "firstCounterAt": 1795445297114,
+    "firstHistogramAt": 1795445297407,
+    "lastCounterAt": 1795445339619,
+    "lastHistogramAt": 1795445336787,
+    "firstMetricAt": 1795445297114,
+    "lastMetricAt": 1795445339619,
+    "summaries": {
+      "http.response_time": {
+        "min": 177,
+        "max": 4408,
+        "count": 297,
+        "mean": 321.4,
+        "p50": 278.7,
+        "median": 278.7,
+        "p75": 354.3,
+        "p90": 487.9,
+        "p95": 528.6,
+        "p99": 596,
+        "p999": 620.3
+      },
+      "http.response_time.4xx": {
+        "min": 177,
+        "max": 4408,
+        "count": 297,
+        "mean": 321.4,
+        "p50": 278.7,
+        "median": 278.7,
+        "p75": 354.3,
+        "p90": 487.9,
+        "p95": 528.6,
+        "p99": 596,
+        "p999": 620.3
+      },
+      "plugins.metrics-by-endpoint.response_time./orders": {
+        "min": 177,
+        "max": 4408,
+        "count": 297,
+        "mean": 321.4,
+        "p50": 278.7,
+        "median": 278.7,
+        "p75": 354.3,
+        "p90": 487.9,
+        "p95": 528.6,
+        "p99": 596,
+        "p999": 620.3
+      },
+      "vusers.session_length": {
+        "min": 179.1,
+        "max": 4410.1,
+        "count": 297,
+        "mean": 324.1,
+        "p50": 278.7,
+        "median": 278.7,
+        "p75": 361.5,
+        "p90": 487.9,
+        "p95": 528.6,
+        "p99": 608,
+        "p999": 620.3
+      }
+    },
+    "histograms": {
+      "http.response_time": {
+        "min": 177,
+        "max": 4408,
+        "count": 297,
+        "mean": 321.4,
+        "p50": 278.7,
+        "median": 278.7,
+        "p75": 354.3,
+        "p90": 487.9,
+        "p95": 528.6,
+        "p99": 596,
+        "p999": 620.3
+      },
+      "http.response_time.4xx": {
+        "min": 177,
+        "max": 4408,
+        "count": 297,
+        "mean": 321.4,
+        "p50": 278.7,
+        "median": 278.7,
+        "p75": 354.3,
+        "p90": 487.9,
+        "p95": 528.6,
+        "p99": 596,
+        "p999": 620.3
+      },
+      "plugins.metrics-by-endpoint.response_time./orders": {
+        "min": 177,
+        "max": 4408,
+        "count": 297,
+        "mean": 321.4,
+        "p50": 278.7,
+        "median": 278.7,
+        "p75": 354.3,
+        "p90": 487.9,
+        "p95": 528.6,
+        "p99": 596,
+        "p999": 620.3
+      },
+      "vusers.session_length": {
+        "min": 179.1,
+        "max": 4410.1,
+        "count": 297,
+        "mean": 324.1,
+        "p50": 278.7,
+        "median": 278.7,
+        "p75": 361.5,
+        "p90": 487.9,
+        "p95": 528.6,
+        "p99": 608,
+        "p999": 620.3
+      }
+    }
+  },
+  "intermediate": [
+    {
+      "period": "1795445290000",
+      "counters": {
+        "vusers.created_by_name.Rollback Path - Poison Pill Triggering Compensation": 15,
+        "vusers.created": 15,
+        "http.requests": 15,
+        "http.codes.422": 15,
+        "http.responses": 15,
+        "http.downloaded_bytes": 5220,
+        "plugins.metrics-by-endpoint./orders.codes.422": 15,
+        "vusers.failed": 0,
+        "vusers.completed": 15
+      },
+      "rates": {
+        "http.request_rate": 10
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1795445297114,
+      "firstHistogramAt": 1795445297407,
+      "lastCounterAt": 1795445299542,
+      "lastHistogramAt": 1795445299542,
+      "firstMetricAt": 1795445297114,
+      "lastMetricAt": 1795445299542,
+      "summaries": {
+        "http.response_time": {
+          "min": 218,
+          "max": 317,
+          "count": 15,
+          "mean": 260.3,
+          "p50": 257.3,
+          "median": 257.3,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 308,
+          "p99": 308,
+          "p999": 308
+        },
+        "http.response_time.4xx": {
+          "min": 218,
+          "max": 317,
+          "count": 15,
+          "mean": 260.3,
+          "p50": 257.3,
+          "median": 257.3,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 308,
+          "p99": 308,
+          "p999": 308
+        },
+        "plugins.metrics-by-endpoint.response_time./orders": {
+          "min": 218,
+          "max": 317,
+          "count": 15,
+          "mean": 260.3,
+          "p50": 257.3,
+          "median": 257.3,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 308,
+          "p99": 308,
+          "p999": 308
+        },
+        "vusers.session_length": {
+          "min": 222.4,
+          "max": 322,
+          "count": 15,
+          "mean": 267.1,
+          "p50": 257.3,
+          "median": 257.3,
+          "p75": 284.3,
+          "p90": 301.9,
+          "p95": 320.6,
+          "p99": 320.6,
+          "p999": 320.6
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 218,
+          "max": 317,
+          "count": 15,
+          "mean": 260.3,
+          "p50": 257.3,
+          "median": 257.3,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 308,
+          "p99": 308,
+          "p999": 308
+        },
+        "http.response_time.4xx": {
+          "min": 218,
+          "max": 317,
+          "count": 15,
+          "mean": 260.3,
+          "p50": 257.3,
+          "median": 257.3,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 308,
+          "p99": 308,
+          "p999": 308
+        },
+        "plugins.metrics-by-endpoint.response_time./orders": {
+          "min": 218,
+          "max": 317,
+          "count": 15,
+          "mean": 260.3,
+          "p50": 257.3,
+          "median": 257.3,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 308,
+          "p99": 308,
+          "p999": 308
+        },
+        "vusers.session_length": {
+          "min": 222.4,
+          "max": 322,
+          "count": 15,
+          "mean": 267.1,
+          "p50": 257.3,
+          "median": 257.3,
+          "p75": 284.3,
+          "p90": 301.9,
+          "p95": 320.6,
+          "p99": 320.6,
+          "p999": 320.6
+        }
+      }
+    },
+    {
+      "period": "1795445300000",
+      "counters": {
+        "vusers.created_by_name.Rollback Path - Poison Pill Triggering Compensation": 50,
+        "vusers.created": 50,
+        "http.requests": 50,
+        "http.codes.422": 50,
+        "http.responses": 50,
+        "http.downloaded_bytes": 17400,
+        "plugins.metrics-by-endpoint./orders.codes.422": 50,
+        "vusers.failed": 0,
+        "vusers.completed": 50
+      },
+      "rates": {
+        "http.request_rate": 5
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1795445300113,
+      "firstHistogramAt": 1795445300323,
+      "lastCounterAt": 1795445309555,
+      "lastHistogramAt": 1795445309555,
+      "firstMetricAt": 1795445300113,
+      "lastMetricAt": 1795445309555,
+      "summaries": {
+        "http.response_time": {
+          "min": 185,
+          "max": 328,
+          "count": 50,
+          "mean": 248.6,
+          "p50": 247.2,
+          "median": 247.2,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 314.2,
+          "p99": 327.1,
+          "p999": 327.1
+        },
+        "http.response_time.4xx": {
+          "min": 185,
+          "max": 328,
+          "count": 50,
+          "mean": 248.6,
+          "p50": 247.2,
+          "median": 247.2,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 314.2,
+          "p99": 327.1,
+          "p999": 327.1
+        },
+        "plugins.metrics-by-endpoint.response_time./orders": {
+          "min": 185,
+          "max": 328,
+          "count": 50,
+          "mean": 248.6,
+          "p50": 247.2,
+          "median": 247.2,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 314.2,
+          "p99": 327.1,
+          "p999": 327.1
+        },
+        "vusers.session_length": {
+          "min": 188,
+          "max": 330.8,
+          "count": 50,
+          "mean": 251.5,
+          "p50": 252.2,
+          "median": 252.2,
+          "p75": 278.7,
+          "p90": 308,
+          "p95": 314.2,
+          "p99": 327.1,
+          "p999": 327.1
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 185,
+          "max": 328,
+          "count": 50,
+          "mean": 248.6,
+          "p50": 247.2,
+          "median": 247.2,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 314.2,
+          "p99": 327.1,
+          "p999": 327.1
+        },
+        "http.response_time.4xx": {
+          "min": 185,
+          "max": 328,
+          "count": 50,
+          "mean": 248.6,
+          "p50": 247.2,
+          "median": 247.2,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 314.2,
+          "p99": 327.1,
+          "p999": 327.1
+        },
+        "plugins.metrics-by-endpoint.response_time./orders": {
+          "min": 185,
+          "max": 328,
+          "count": 50,
+          "mean": 248.6,
+          "p50": 247.2,
+          "median": 247.2,
+          "p75": 273.2,
+          "p90": 301.9,
+          "p95": 314.2,
+          "p99": 327.1,
+          "p999": 327.1
+        },
+        "vusers.session_length": {
+          "min": 188,
+          "max": 330.8,
+          "count": 50,
+          "mean": 251.5,
+          "p50": 252.2,
+          "median": 252.2,
+          "p75": 278.7,
+          "p90": 308,
+          "p95": 314.2,
+          "p99": 327.1,
+          "p999": 327.1
+        }
+      }
+    },
+    {
+      "period": "1795445310000",
+      "counters": {
+        "vusers.created_by_name.Rollback Path - Poison Pill Triggering Compensation": 66,
+        "vusers.created": 66,
+        "http.requests": 66,
+        "http.codes.422": 66,
+        "http.responses": 66,
+        "http.downloaded_bytes": 22968,
+        "plugins.metrics-by-endpoint./orders.codes.422": 66,
+        "vusers.failed": 0,
+        "vusers.completed": 66
+      },
+      "rates": {
+        "http.request_rate": 13
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1795445310113,
+      "firstHistogramAt": 1795445310337,
+      "lastCounterAt": 1795445319966,
+      "lastHistogramAt": 1795445319966,
+      "firstMetricAt": 1795445310113,
+      "lastMetricAt": 1795445319966,
+      "summaries": {
+        "http.response_time": {
+          "min": 177,
+          "max": 594,
+          "count": 66,
+          "mean": 274.7,
+          "p50": 242.3,
+          "median": 242.3,
+          "p75": 320.6,
+          "p90": 391.6,
+          "p95": 441.5,
+          "p99": 550.1,
+          "p999": 550.1
+        },
+        "http.response_time.4xx": {
+          "min": 177,
+          "max": 594,
+          "count": 66,
+          "mean": 274.7,
+          "p50": 242.3,
+          "median": 242.3,
+          "p75": 320.6,
+          "p90": 391.6,
+          "p95": 441.5,
+          "p99": 550.1,
+          "p999": 550.1
+        },
+        "plugins.metrics-by-endpoint.response_time./orders": {
+          "min": 177,
+          "max": 594,
+          "count": 66,
+          "mean": 274.7,
+          "p50": 242.3,
+          "median": 242.3,
+          "p75": 320.6,
+          "p90": 391.6,
+          "p95": 441.5,
+          "p99": 550.1,
+          "p999": 550.1
+        },
+        "vusers.session_length": {
+          "min": 179.1,
+          "max": 596.9,
+          "count": 66,
+          "mean": 277.7,
+          "p50": 242.3,
+          "median": 242.3,
+          "p75": 320.6,
+          "p90": 399.5,
+          "p95": 450.4,
+          "p99": 550.1,
+          "p999": 550.1
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 177,
+          "max": 594,
+          "count": 66,
+          "mean": 274.7,
+          "p50": 242.3,
+          "median": 242.3,
+          "p75": 320.6,
+          "p90": 391.6,
+          "p95": 441.5,
+          "p99": 550.1,
+          "p999": 550.1
+        },
+        "http.response_time.4xx": {
+          "min": 177,
+          "max": 594,
+          "count": 66,
+          "mean": 274.7,
+          "p50": 242.3,
+          "median": 242.3,
+          "p75": 320.6,
+          "p90": 391.6,
+          "p95": 441.5,
+          "p99": 550.1,
+          "p999": 550.1
+        },
+        "plugins.metrics-by-endpoint.response_time./orders": {
+          "min": 177,
+          "max": 594,
+          "count": 66,
+          "mean": 274.7,
+          "p50": 242.3,
+          "median": 242.3,
+          "p75": 320.6,
+          "p90": 391.6,
+          "p95": 441.5,
+          "p99": 550.1,
+          "p999": 550.1
+        },
+        "vusers.session_length": {
+          "min": 179.1,
+          "max": 596.9,
+          "count": 66,
+          "mean": 277.7,
+          "p50": 242.3,
+          "median": 242.3,
+          "p75": 320.6,
+          "p90": 399.5,
+          "p95": 450.4,
+          "p99": 550.1,
+          "p999": 550.1
+        }
+      }
+    },
+    {
+      "period": "1795445320000",
+      "counters": {
+        "vusers.created_by_name.Rollback Path - Poison Pill Triggering Compensation": 100,
+        "vusers.created": 100,
+        "http.requests": 100,
+        "http.codes.422": 98,
+        "http.responses": 98,
+        "http.downloaded_bytes": 34104,
+        "plugins.metrics-by-endpoint./orders.codes.422": 98,
+        "vusers.failed": 0,
+        "vusers.completed": 98
+      },
+      "rates": {
+        "http.request_rate": 10
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1795445320114,
+      "firstHistogramAt": 1795445320402,
+      "lastCounterAt": 1795445329923,
+      "lastHistogramAt": 1795445329923,
+      "firstMetricAt": 1795445320114,
+      "lastMetricAt": 1795445329923,
+      "summaries": {
+        "http.response_time": {
+          "min": 183,
+          "max": 583,
+          "count": 98,
+          "mean": 345.1,
+          "p50": 327.1,
+          "median": 327.1,
+          "p75": 407.5,
+          "p90": 528.6,
+          "p95": 550.1,
+          "p99": 572.6,
+          "p999": 572.6
+        },
+        "http.response_time.4xx": {
+          "min": 183,
+          "max": 583,
+          "count": 98,
+          "mean": 345.1,
+          "p50": 327.1,
+          "median": 327.1,
+          "p75": 407.5,
+          "p90": 528.6,
+          "p95": 550.1,
+          "p99": 572.6,
+          "p999": 572.6
+        },
+        "plugins.metrics-by-endpoint.response_time./orders": {
+          "min": 183,
+          "max": 583,
+          "count": 98,
+          "mean": 345.1,
+          "p50": 327.1,
+          "median": 327.1,
+          "p75": 407.5,
+          "p90": 528.6,
+          "p95": 550.1,
+          "p99": 572.6,
+          "p999": 572.6
+        },
+        "vusers.session_length": {
+          "min": 185.6,
+          "max": 585,
+          "count": 98,
+          "mean": 347.3,
+          "p50": 333.7,
+          "median": 333.7,
+          "p75": 415.8,
+          "p90": 528.6,
+          "p95": 550.1,
+          "p99": 572.6,
+          "p999": 572.6
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 183,
+          "max": 583,
+          "count": 98,
+          "mean": 345.1,
+          "p50": 327.1,
+          "median": 327.1,
+          "p75": 407.5,
+          "p90": 528.6,
+          "p95": 550.1,
+          "p99": 572.6,
+          "p999": 572.6
+        },
+        "http.response_time.4xx": {
+          "min": 183,
+          "max": 583,
+          "count": 98,
+          "mean": 345.1,
+          "p50": 327.1,
+          "median": 327.1,
+          "p75": 407.5,
+          "p90": 528.6,
+          "p95": 550.1,
+          "p99": 572.6,
+          "p999": 572.6
+        },
+        "plugins.metrics-by-endpoint.response_time./orders": {
+          "min": 183,
+          "max": 583,
+          "count": 98,
+          "mean": 345.1,
+          "p50": 327.1,
+          "median": 327.1,
+          "p75": 407.5,
+          "p90": 528.6,
+          "p95": 550.1,
+          "p99": 572.6,
+          "p999": 572.6
+        },
+        "vusers.session_length": {
+          "min": 185.6,
+          "max": 585,
+          "count": 98,
+          "mean": 347.3,
+          "p50": 333.7,
+          "median": 333.7,
+          "p75": 415.8,
+          "p90": 528.6,
+          "p95": 550.1,
+          "p99": 572.6,
+          "p999": 572.6
+        }
+      }
+    },
+    {
+      "period": "1795445330000",
+      "counters": {
+        "vusers.created_by_name.Rollback Path - Poison Pill Triggering Compensation": 69,
+        "vusers.created": 69,
+        "http.requests": 69,
+        "http.codes.422": 68,
+        "http.responses": 68,
+        "http.downloaded_bytes": 23562,
+        "plugins.metrics-by-endpoint./orders.codes.422": 68,
+        "vusers.failed": 3,
+        "vusers.completed": 68,
+        "plugins.metrics-by-endpoint./orders.errors.ERR_SOCKET_TIMEOUT": 3,
+        "errors.ERR_SOCKET_TIMEOUT": 3
+      },
+      "rates": {
+        "http.request_rate": 10
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1795445330011,
+      "firstHistogramAt": 1795445330011,
+      "lastCounterAt": 1795445339619,
+      "lastHistogramAt": 1795445336787,
+      "firstMetricAt": 1795445330011,
+      "lastMetricAt": 1795445339619,
+      "summaries": {
+        "http.response_time": {
+          "min": 182,
+          "max": 4408,
+          "count": 68,
+          "mean": 399.4,
+          "p50": 320.6,
+          "median": 320.6,
+          "p75": 399.5,
+          "p90": 497.8,
+          "p95": 539.2,
+          "p99": 620.3,
+          "p999": 620.3
+        },
+        "http.response_time.4xx": {
+          "min": 182,
+          "max": 4408,
+          "count": 68,
+          "mean": 399.4,
+          "p50": 320.6,
+          "median": 320.6,
+          "p75": 399.5,
+          "p90": 497.8,
+          "p95": 539.2,
+          "p99": 620.3,
+          "p999": 620.3
+        },
+        "plugins.metrics-by-endpoint.response_time./orders": {
+          "min": 182,
+          "max": 4408,
+          "count": 68,
+          "mean": 399.4,
+          "p50": 320.6,
+          "median": 320.6,
+          "p75": 399.5,
+          "p90": 497.8,
+          "p95": 539.2,
+          "p99": 620.3,
+          "p999": 620.3
+        },
+        "vusers.session_length": {
+          "min": 184.6,
+          "max": 4410.1,
+          "count": 68,
+          "mean": 401.4,
+          "p50": 320.6,
+          "median": 320.6,
+          "p75": 399.5,
+          "p90": 497.8,
+          "p95": 550.1,
+          "p99": 620.3,
+          "p999": 620.3
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 182,
+          "max": 4408,
+          "count": 68,
+          "mean": 399.4,
+          "p50": 320.6,
+          "median": 320.6,
+          "p75": 399.5,
+          "p90": 497.8,
+          "p95": 539.2,
+          "p99": 620.3,
+          "p999": 620.3
+        },
+        "http.response_time.4xx": {
+          "min": 182,
+          "max": 4408,
+          "count": 68,
+          "mean": 399.4,
+          "p50": 320.6,
+          "median": 320.6,
+          "p75": 399.5,
+          "p90": 497.8,
+          "p95": 539.2,
+          "p99": 620.3,
+          "p999": 620.3
+        },
+        "plugins.metrics-by-endpoint.response_time./orders": {
+          "min": 182,
+          "max": 4408,
+          "count": 68,
+          "mean": 399.4,
+          "p50": 320.6,
+          "median": 320.6,
+          "p75": 399.5,
+          "p90": 497.8,
+          "p95": 539.2,
+          "p99": 620.3,
+          "p999": 620.3
+        },
+        "vusers.session_length": {
+          "min": 184.6,
+          "max": 4410.1,
+          "count": 68,
+          "mean": 401.4,
+          "p50": 320.6,
+          "median": 320.6,
+          "p75": 399.5,
+          "p90": 497.8,
+          "p95": 550.1,
+          "p99": 620.3,
+          "p999": 620.3
+        }
+      }
+    }
+  ]
+}

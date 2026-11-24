@@ -1,0 +1,2 @@
+timestamp,architecture,scenario,p50_e2e_latency_ms,p95_e2e_latency_ms,p99_e2e_latency_ms,total_rps,http_503_error_rps,temporal_ram_mb,temporal_cpu_cores,kafka_ram_mb,kafka_cpu_cores,services_ram_mb,services_cpu_cores
+1791822952.6782458,TEMPORAL,NORMAL,,,,,,,,,,,
