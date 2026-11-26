@@ -8,20 +8,71 @@ spec:
     metadata:
       annotations:
         autoscaling.knative.dev/minScale: "0"
-        autoscaling.knative.dev/maxScale: "10"
         autoscaling.knative.dev/target: "10"
         autoscaling.knative.dev/scaleToZeroGracePeriod: "30s"
     spec:
       containers:
-        - image: saga-temporal-order:latest
+        - image: kind.local/saga-temporal-order:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: TEMPORAL_HOST
               value: "temporal-frontend.temporal.svc.cluster.local:7233"
-            - name: PORT
-              value: "8080"
-            - name: GOMEMLIMIT
-              value: "220MiB"
+            - name: PAYMENT_SERVICE_URL
+              value: "http://payment.default.svc.cluster.local"
+            - name: INVENTORY_SERVICE_URL
+              value: "http://inventory.default.svc.cluster.local"
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: payment
+  namespace: default
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/target: "10"
+        autoscaling.knative.dev/scaleToZeroGracePeriod: "30s"
+    spec:
+      containers:
+        - image: kind.local/saga-temporal-payment:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: inventory
+  namespace: default
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/target: "10"
+        autoscaling.knative.dev/scaleToZeroGracePeriod: "30s"
+    spec:
+      containers:
+        - image: kind.local/saga-temporal-inventory:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           resources:

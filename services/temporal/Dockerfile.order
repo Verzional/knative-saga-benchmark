@@ -1,0 +1,15 @@
+FROM golang:1.24-alpine AS builder
+WORKDIR /app
+ENV GOTOOLCHAIN=auto
+RUN go mod init serverless-saga-bench/order_service && \
+    go get go.temporal.io/sdk@v1.26.0 github.com/google/uuid@v1.6.0
+COPY order_service/ ./
+RUN go mod tidy
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /order-service .
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=builder /order-service ./main
+EXPOSE 8080
+CMD ["./main"]

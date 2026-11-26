@@ -2,117 +2,92 @@ package main
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	_ "net/http/pprof" // Localhost profiler for runtime diagnostics
+	_ "net/http/pprof" // Production runtime profiling exposed on /debug/pprof
 	"os"
+	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
+	"github.com/google/uuid"
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/worker"
 )
-
-type OrderRequest struct {
-	OrderID        string  `json:"order_id"`
-	CustomerID     string  `json:"customer_id"`
-	SKU            string  `json:"sku"`
-	Quantity       int     `json:"quantity"`
-	Amount         float64 `json:"amount"`
-	PaymentMethod  string  `json:"payment_method"`
-	TriggerFailure bool    `json:"trigger_failure"`
-	IdempotencyKey string  `json:"idempotencykey,omitempty"` // CNCF CloudEvents v1.0.2 spec
-	TraceParent    string  `json:"traceparent,omitempty"`
-}
 
 var (
-	temporalClient  client.Client
-	temporalMutex   sync.RWMutex
-	idempotencySeen sync.Map // Prevents duplicate execution anomalies
+	temporalClient   client.Client
+	orderCounter     uint64
+	compCounter      uint64
+	idempotencyCache sync.Map
 )
 
-func getTemporalClient() (client.Client, error) {
-	temporalMutex.RLock()
-	if temporalClient != nil {
-		temporalMutex.RUnlock()
-		return temporalClient, nil
+func getOrGenerateTraceparent(r *http.Request) string {
+	tp := r.Header.Get("traceparent")
+	if tp != "" {
+		return tp
 	}
-	temporalMutex.RUnlock()
+	traceID := strings.ReplaceAll(uuid.New().String(), "-", "")
+	spanID := strings.ReplaceAll(uuid.New().String(), "-", "")[:16]
+	return fmt.Sprintf("00-%s-%s-01", traceID, spanID)
+}
 
-	temporalMutex.Lock()
-	defer temporalMutex.Unlock()
-
-	if temporalClient != nil {
-		return temporalClient, nil
-	}
-
+func main() {
 	temporalHost := os.Getenv("TEMPORAL_HOST")
 	if temporalHost == "" {
 		temporalHost = "temporal-frontend.temporal.svc.cluster.local:7233"
 	}
 
-	c, err := client.Dial(client.Options{
-		HostPort:  temporalHost,
-		Namespace: "default",
-		ConnectionOptions: client.ConnectionOptions{
-			ConnectTimeout: 5 * time.Second,
-			KeepAliveTime:  30 * time.Second,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	temporalClient = c
-	return temporalClient, nil
-}
-
-func main() {
-	// Expose pprof strictly on internal localhost port 6060 to prevent public ingress exploitation
-	go func() {
-		log.Println("[PPROF] Local runtime profiler listening on 127.0.0.1:6060")
-		_ = http.ListenAndServe("127.0.0.1:6060", nil)
-	}()
-
-	_, err := getTemporalClient()
-	if err != nil {
-		log.Printf("Notice: initial dial to Temporal deferred (%v), will connect upon request", err)
-	}
-	defer func() {
-		temporalMutex.Lock()
-		if temporalClient != nil {
-			temporalClient.Close()
+	// Initialize Temporal Client with retry
+	var err error
+	for i := 0; i < 5; i++ {
+		temporalClient, err = client.Dial(client.Options{
+			HostPort:  temporalHost,
+			Namespace: "default",
+		})
+		if err == nil {
+			log.Printf("Connected to Temporal at %s", temporalHost)
+			break
 		}
-		temporalMutex.Unlock()
-	}()
+		log.Printf("Waiting for Temporal at %s (%v)... retry in 1s", temporalHost, err)
+		time.Sleep(1 * time.Second)
+	}
 
-	mux := http.NewServeMux()
+	if err != nil {
+		log.Printf("Warning: Temporal connection failed on startup (%v). Will reconnect on demand.", err)
+	} else {
+		w := worker.New(temporalClient, "SAGA_ORDER_QUEUE", worker.Options{})
+		w.RegisterWorkflow(CreateOrderSaga)
+		w.RegisterActivity(ProcessPaymentActivity)
+		w.RegisterActivity(RefundPaymentActivity)
+		w.RegisterActivity(ReserveInventoryActivity)
 
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		go func() {
+			log.Println("Starting Temporal Worker on queue 'SAGA_ORDER_QUEUE'...")
+			if err := w.Run(worker.InterruptCh()); err != nil {
+				log.Printf("Temporal worker stopped: %v", err)
+			}
+		}()
+	}
+
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"healthy","architecture":"temporal-orchestration","bounded_context":true}`))
+		w.Write([]byte(`{"status":"healthy","service":"order-service","architecture":"temporal-orchestration","enhanced":true}`))
 	})
 
-	mux.HandleFunc("/orders", handleCreateOrder)
+	http.HandleFunc("/orders", handleCreateOrder)
+	http.HandleFunc("/metrics", handleMetrics)
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-
-	server := &http.Server{
-		Addr:         ":" + port,
-		Handler:      mux,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  30 * time.Second,
-	}
-
-	log.Printf("Temporal Production Order Service listening on port %s", port)
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	log.Printf("[OrderService-Temporal] Listening on port %s (pprof at /debug/pprof)...", port)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalf("Server error: %v", err)
 	}
 }
@@ -122,42 +97,50 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	atomic.AddUint64(&orderCounter, 1)
 
-	var req OrderRequest
+	var req OrderSagaRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, fmt.Sprintf("Invalid JSON body: %v", err), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Invalid body: %v", err), http.StatusBadRequest)
 		return
 	}
 
-	// Capture W3C distributed tracing context
-	if tp := r.Header.Get("traceparent"); tp != "" {
-		req.TraceParent = tp
+	if req.OrderID == "" {
+		req.OrderID = fmt.Sprintf("order-%s", uuid.New().String()[:8])
 	}
 
-	// Idempotency validation
-	if req.IdempotencyKey == "" {
-		req.IdempotencyKey = fmt.Sprintf("idemp-%s", req.OrderID)
-	}
-	if _, loaded := idempotencySeen.LoadOrStore(req.IdempotencyKey, time.Now()); loaded {
+	traceParent := getOrGenerateTraceparent(r)
+	req.TraceParent = traceParent
+
+	// Idempotency check
+	if cached, ok := idempotencyCache.Load(req.OrderID); ok {
+		log.Printf("[OrderService-Temporal] Idempotency cache hit for order_id=%s", req.OrderID)
+		res := cached.(map[string]interface{})
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"order_id":        req.OrderID,
-			"status":          "COMPLETED_IDEMPOTENT",
-			"idempotency_key": req.IdempotencyKey,
-		})
+		w.Header().Set("traceparent", traceParent)
+		if res["status"] == "COMPENSATED" {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+		} else {
+			w.WriteHeader(http.StatusOK)
+		}
+		json.NewEncoder(w).Encode(res)
 		return
 	}
 
-	// Simulate cryptographic payload validation (realistic CPU computation)
-	h := sha256.New()
-	h.Write([]byte(fmt.Sprintf("%s:%s:%f", req.OrderID, req.CustomerID, req.Amount)))
-	_ = hex.EncodeToString(h.Sum(nil))
-
-	tc, err := getTemporalClient()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Temporal cluster unavailable: %v", err), http.StatusServiceUnavailable)
-		return
+	if temporalClient == nil {
+		temporalHost := os.Getenv("TEMPORAL_HOST")
+		if temporalHost == "" {
+			temporalHost = "temporal-frontend.temporal.svc.cluster.local:7233"
+		}
+		var err error
+		temporalClient, err = client.Dial(client.Options{
+			HostPort:  temporalHost,
+			Namespace: "default",
+		})
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Temporal connection failed: %v", err), http.StatusServiceUnavailable)
+			return
+		}
 	}
 
 	workflowOptions := client.StartWorkflowOptions{
@@ -165,59 +148,56 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request) {
 		TaskQueue: "SAGA_ORDER_QUEUE",
 	}
 
-	// Bound workflow dispatch and execution to incoming request context with strict 8s timeout
-	// Prevents goroutine accumulation and socket exhaustion during PostgreSQL pool saturation
-	execCtx, cancel := context.WithTimeout(r.Context(), 8*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
 	defer cancel()
 
-	we, err := tc.ExecuteWorkflow(execCtx, workflowOptions, "CreateOrderSaga", req)
+	we, err := temporalClient.ExecuteWorkflow(ctx, workflowOptions, CreateOrderSaga, req)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to initiate workflow execution: %v", err), http.StatusServiceUnavailable)
+		http.Error(w, fmt.Sprintf("Failed to initiate workflow: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	var sagaResult struct {
-		OrderID      string `json:"order_id"`
-		Status       string `json:"status"`
-		FailureStep  string `json:"failure_step,omitempty"`
-		ErrorMessage string `json:"error_message,omitempty"`
-	}
-
-	err = we.Get(execCtx, &sagaResult)
-	if err != nil {
-		if execCtx.Err() == context.DeadlineExceeded {
-			http.Error(w, "Workflow execution timeout under cluster backpressure", http.StatusGatewayTimeout)
-			return
+	var sagaResult OrderSagaResult
+	err = we.Get(ctx, &sagaResult)
+	if err != nil || sagaResult.Status == "COMPENSATED" || sagaResult.Status == "FAILED" {
+		atomic.AddUint64(&compCounter, 1)
+		errMsg := sagaResult.ErrorMessage
+		if errMsg == "" && err != nil {
+			errMsg = err.Error()
 		}
-		if sagaResult.Status == "COMPENSATED" {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnprocessableEntity)
-			json.NewEncoder(w).Encode(map[string]interface{}{
-				"order_id": req.OrderID,
-				"status":   "COMPENSATED",
-				"error":    sagaResult.ErrorMessage,
-			})
-			return
-		}
-		http.Error(w, fmt.Sprintf("Workflow execution failed: %v", err), http.StatusInternalServerError)
-		return
-	}
 
-	if sagaResult.Status == "COMPENSATED" {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		res := map[string]interface{}{
 			"order_id": req.OrderID,
 			"status":   "COMPENSATED",
-			"error":    sagaResult.ErrorMessage,
-		})
+			"error":    errMsg,
+		}
+		idempotencyCache.Store(req.OrderID, res)
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("traceparent", traceParent)
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		json.NewEncoder(w).Encode(res)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	res := map[string]interface{}{
 		"order_id": req.OrderID,
 		"status":   "COMPLETED",
-	})
+	}
+	idempotencyCache.Store(req.OrderID, res)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("traceparent", traceParent)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
+}
+
+func handleMetrics(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; version=0.0.4")
+	fmt.Fprintf(w, "# HELP orders_total Total orders received\n")
+	fmt.Fprintf(w, "# TYPE orders_total counter\n")
+	fmt.Fprintf(w, "orders_total %d\n", atomic.LoadUint64(&orderCounter))
+	fmt.Fprintf(w, "# HELP orders_compensated_total Total orders compensated\n")
+	fmt.Fprintf(w, "# TYPE orders_compensated_total counter\n")
+	fmt.Fprintf(w, "orders_compensated_total %d\n", atomic.LoadUint64(&compCounter))
 }
