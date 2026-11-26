@@ -11,9 +11,9 @@ Codebase, Kubernetes/Knative provisioning configs, Artillery benchmark suites, `
 
 ## Architecture Overview
 
-1. **Temporal Orchestration (`PC/EC`):** Go ingress HTTP gateway (`services/temporal/order_service/main.go`) forwards synchronous workflow execution (`CreateOrderSaga` on `SAGA_ORDER_QUEUE`, 8 s HTTP timeout) to Temporal Server `v1.24.0` + PostgreSQL `15-alpine` (`max_connections=500`, `SQL_MAX_CONNS=200`). Reference workflow/activity stubs live in `services/temporal/workflow.go`.
-2. **Kafka Choreography (`PA/EL`):** Go ingress HTTP gateway (`services/kafka/order_service/main.go`) publishes `OrderEvent` payloads (`ce_specversion`, `ce_type`, `traceparent`) to Kafka (`LeastBytes`, `RequiredAcks=RequireOne`, Snappy, `BatchSize=100`, `BatchTimeout=10ms`), maintains a pod-local `pendingAcks` `sync.Map` for 5 s synchronous correlation, and falls back to HTTP `202 Accepted` (`PROCESSING_ASYNC`) on cross-pod misses.
-3. **Knative Autoscaling Config (`services/*/kservice.yaml`):** `minScale: 0`, `maxScale: 10`, KPA `target: 10`, `scaleToZeroGracePeriod: 30s`, `50m/500m` CPU, `64Mi/256Mi` RAM (`GOMEMLIMIT=220MiB`).
+1. **Temporal Orchestration (`PC/EC`):** Go Knative `order`, `payment`, and `inventory` services (`services/temporal/{order_service,payment_service,inventory_service}/main.go`, live `-00002`). Each scaled `order` pod embeds `1` in-process Temporal worker (`worker.New` on `SAGA_ORDER_QUEUE`, Go SDK `v1.26.0` default `worker.Options{}`: `1,000` concurrent workflow/activity slots, `2` workflow/`2` activity pollers), running `CreateOrderSaga` (`StartToCloseTimeout=15s`, max `1` attempt, `25s` `/orders` RPC timeout) and calling `payment` (`/pay`, `/refund`) and `inventory` (`/reserve`) via `12s` HTTP requests against Temporal Server `v1.24.0` + PostgreSQL `15-alpine` (`max_connections=500`, `SQL_MAX_CONNS=200`).
+2. **Kafka Choreography (`PA/EL`):** Go Knative `order`, `payment`, and `inventory` services (`services/kafka/{order_service,payment_service,inventory_service}/main.go`, live `-00003`). The ingress `order` gateway publishes `OrderEvent` payloads (`ce_specversion`, `ce_type`, `traceparent`) to Kafka (`LeastBytes`, `RequiredAcks=RequireOne`, Snappy, `BatchSize=100`, `BatchTimeout=10ms`), maintains a pod-local `pendingAcks` `sync.Map` for 5 s synchronous correlation, and falls back to HTTP `202 Accepted` (`PROCESSING_ASYNC`) on cross-pod misses. Downstream `payment` (`payment-service-group`) and `inventory` (`inventory-service-group`) consume events asynchronously and also attempt `/events` HTTP callbacks (`order` omits `/events`).
+3. **Live Knative Specs (`services/*/kservice.yaml`):** Both stacks ran `minScale: 0`, KPA soft `target: 10`, `containerConcurrency: 0`, and `scaleToZeroGracePeriod: 30s` (without live `maxScale` or `GOMEMLIMIT` caps); `-00002` Temporal enforced `50m/500m` CPU and `64Mi/256Mi` RAM per container, whereas Nov 23 `-00003` Kafka revisions ran `resources: {}`.
 
 ---
 
@@ -70,8 +70,8 @@ Key results aggregated in [`results/trials/multitrial_summary.json`](results/tri
 │   └── generate_figures.py            # Reproducible 300 DPI PNG/SVG plot generator
 └── services/
     ├── common/cloudevents.go          # Shared CloudEvent structs
-    ├── temporal/                      # Temporal Order Gateway (HTTP -> gRPC) & reference workflow.go
-    └── kafka/                         # Kafka Order Gateway (pprof :6060, pendingAcks, OrderEvent)
+    ├── temporal/                      # Temporal Order (+ embedded worker), Payment, and Inventory services + Dockerfiles & kservice.yaml
+    └── kafka/                         # Kafka Order (pprof :6060, pendingAcks, 5s 202), Payment, and Inventory services + Dockerfiles & kservice.yaml
 ```
 
 ---
