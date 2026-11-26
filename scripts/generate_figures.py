@@ -176,18 +176,18 @@ def plot_topology():
     add_box(61.5, 56, 33, 21.5, "Knative Serving v1.14 (Kind v1.36.1)", [
         "• Kourier Ingress Gateway (:80)",
         "• Knative Activator & Queue-Proxy (target=10)",
-        "• Scale-to-Zero App Pods (min=0, max=10)"
+        "• Scale-to-Zero App Pods (min=0, no maxScale)"
     ], '#fdedec', '#ec7063', '#8b1a1a')
 
     # Right Box 2 updated to note exact KRaft 4.3.0 live runtime vs 3.7.0 provisioning script
     add_box(61.5, 29.5, 33, 22.5, "Saga Coordination Targets", [
         "• Temporal v1.24.0 + PostgreSQL 15 (PC/EC)",
         "• Strimzi Kafka 4.3.0 KRaft, 3 Partitions (PA/EL)",
-        "• Go Gateway + HTTP/JSON + pprof (:6060)"
+        "• Go Gateways + HTTP/JSON + pprof"
     ], '#fdedec', '#ec7063', '#8b1a1a')
 
-    add_box(61.5, 8.5, 33, 17, "SUT Reset & Worker Agent", [
-        "Worker Poll Client (:8088) | Cluster Lifecycle",
+    add_box(61.5, 8.5, 33, 17, "SUT Reset & Poller Agent", [
+        "SUT Bridge Poller (:8088) | Cluster Lifecycle",
         "Rollout Restarts & Pod Cleanup"
     ], '#fdedec', '#ec7063', '#8b1a1a')
 
